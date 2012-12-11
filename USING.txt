@@ -1,0 +1,226 @@
+How to use Sing-Tsung
+
+== General Help == 
+
+=== What is Tsung ===
+
+Tsung is a plugin-based load-testing application, with plugins for generating
+simulated traffic for several network protocols, including HTTP.  Tsung has a
+recorder you can use to record web traffic from a browser, and it has a player
+that you can use to play back that web traffic, to simulate large numbers of
+users accessing your website simultaneously.  Tsung's recorder implements a
+conventional HTTP proxy mechanism to collect the traffic.  Tsung's playback
+module correctly handles most kinds of dynamic applications.  Using Tsung, you
+can see how your web application stands up to load, with precise control over
+the activities being simulated.
+
+=== What is Sing-Tsung ===
+
+Sing-Tsung is a web front-end to Tsung.  The goal is to make Tsung easy to
+use, by adding a GUI to the Tsung functionality.
+
+=== What is a typical Sing-Tsung session like? ===
+
+Generally, the cycle works like this:
+
+# You go to the [[#Record screen]] screen and record a "Session".  A "Session"
+# is a typical use-case -- something you expect a user to do.  You can record
+# as many of these as you see fit.  Perhaps there are several different ways
+# you expect your site to be used.  Record one session for each of these
+# use-cases.
+# You go to the [[#Manage screen]] and set up a "Profile".  A "Profile"
+# describes the type of load you want generated.  You tell it which "Session"s
+# to use to generate the load, and set the rates at which users arrive. 
+# You go to the [[#Run screen]] and select the "Profile" you just created.
+# You click "Run Selected Profile" and wait for it to finish.  While it's
+# running, you should be able to see what it's doing by looking in the
+# appropriate log files.  The appropriate log files are the apache logs on the
+# server that's hosting the application that you are testing.
+# You click the "Generate Stats Report" button, to see a number of interesting
+# statistics about the profile that just finished running.
+
+
+== Screens ==
+
+=== Record Screen ===
+
+On the Record screen, you can record one or more "Sessions".  A "Session" is a
+typical use-case of your web application.  The basic idea is to click "Record
+a session", and use your web application like a typical user will.  Then click
+"Stop" and "Save".  You will later combine this and optionally other
+"Sessions" to make a "Profile" that you can use to test load.
+
+You can also edit previously-saved "Sessions" on the Record screen.
+
+
+==== Creating a New Session ====
+
+The first thing you see when you come to the Record screen is a blank slate
+for recording.  To start the recording, click the "Start Recording" button.
+You will see a message that a proxy has been started.
+
+The idea is that you will use your web browser, and the things you do will be
+recorded by the proxy.  But first, you must set up your browser to use the
+proxy.  The message on the screen should have the host name and port that you
+should use in your proxy.  It might, for example, be 10.1.1.217, port 8090.
+
+Below are instructions on how to configure your proxy, in both Firefox and IE.
+
+Once your proxy is configured, you should use your web browser like you expect
+a user to.  Everything you do will be recorded by Sing-Tsung.
+
+When you are done, you can click "Stop Recording".  Feel free to edit the
+Session Body by hand, if you wish, at this point.  Or you could start the
+recording back up to record additional behavior.
+
+Give this session a name, and click "Save".  The session is now available to
+be used in the creation of "Profiles".
+
+
+===== Configuring Your Proxy in Firefox =====
+
+In Firefox 1.5, you can configure your browser for the proxy like so:
+
+# Go to "Edit > Preferences".
+# Look at the tab labelled "General".
+# Click the button marked "Connection settings".  
+# Switch the radio button to "Manual Proxy".
+# Enter the hostname and port into the line labelled "HTTP Proxy".  The
+# hostname and port to use should be written in a message on-screen.  It might
+# be something like 10.1.1.217, port 8090.
+# Check the button marked "use the proxy for all protocols."
+# In the line marked "No Proxy For", put the same host-name that you put on
+# the HTTP Proxy line.  <em>If you neglect to do this, then the proxy will
+# record your interactions with the Sing-Tsung application, as well as the
+# target application.</em>  This is probably not what you want.
+# Click "OK" and close the preferences dialog.
+
+When you are done making your recording, you can turn off your proxy by
+following this procedure:
+
+# Go to "Edit > Preferences".
+# Look at the tab labelled "General".
+# Click the button marked "Connection settings".  
+# Switch the radio button to "Direct connection to the internet".
+# Click "OK" and close the preferences dialog.
+
+===== Configuring Your Proxy in Internet Explorer =====
+
+In Internet Explorer 7, you can set up your proxy thusly:
+
+# Go to "Tools > Internet Options".
+# Switch to the "Connections" tab.
+# Click on "LAN Settings".
+# Check the box marked "Use a proxy server for your LAN...".
+# Click the "Advanced" button.
+# Put the hostname and port into the first line ("HTTP").  The hostname and
+# port might be something like 10.1.1.217, port 8090, and it should be listed
+# on-screen.
+# Put that same hostname into the "Exceptions".
+# Click OK and close the preferences dialog.
+
+
+When you are done making your recording, you can turn off your proxy by
+following this procedure:
+
+# Go to "Tools > Internet Options".
+# Switch to the "Connections" tab.
+# Click on "LAN Settings".
+# Uncheck the box marked "Use a proxy server for your LAN...".
+# Click OK and close the preferences dialog.
+
+==== Editing an Existing Profile ====
+
+To edit an existing session, look at the "Session Management" portion of the
+Record screen.  There is a drop-down selector which contains the names of all
+the existing Sessions.  Select yours and click "Edit".  You can now edit that
+Session's recorded script.  For example, you could edit it by hand, or you
+could click "Continue Recording" to add more recordings from the web proxy.
+
+==== Deleting a Profile ====
+
+To delete an existing session, look at the "Session Management" portion of the
+Record screen.  There is a drop-down selector with the names of all the
+Sessions.  Select yours and click "Delete".  It will ask you to confirm.  Note
+that you will be deleting the session mentioned in the drop-down selector,
+which may or may not be the same session that is shown in the main part of the
+page.
+
+=== Manage Screen ===
+
+On the Manage screen, you create a Profile.  A Profile is a description of how
+to generate web traffic.  It contains a list of Sessions to generate traffic
+from, and a couple of numbers specifying how to use those Sessions.  In order
+to run any of the recordings you've made, you must put them into a Profile, so
+that Sing-Tsung knows what to do with your recordings.
+
+==== The Load Section ====
+
+In the Load section, you specify how much load is to be created.  
+
+When Tsung runs, it simulates "users", and each user executes one of the
+recorded Sessions.  The amount of time it spends creating users is specified
+in the "Arrival Phase" portion.  During this "Arrival Phase", it creates
+users.  A new user is created at each interval of the "Interarrival Duration".
+
+The Tsung documentation has relatively sparse information on the interplay of
+users, arrival phases, and interarrival rate.  Our analysis and
+experimentation have shown that a ''fractional'' value for interarrival rate
+is required to simulate large traffic volumes.  During Tsung playback, Tsung
+reports the currently simulated traffic in terms of requests per second, and
+also concurrent simulated users.
+
+Once the number of simulated users exceeds the number specified in "Max
+Users", a new process is spawned.  Spawning new processes allows the Erlang
+backend to run some of the processes on other processors, and to spawn more
+than one network connection.
+
+The default values will generate a hefty amount of traffic:
+
+* Max Users: 1024.
+* Arrival Phase: 10 minutes.
+* Interarrival Duration: 0.01 seconds.
+
+==== The Sessions Section ====
+
+Here, you say which sessions you want tsung to play.
+
+You should see a drop-down selector which contains the names of all of your
+recorded Sessions.  Select one, and click Add.  It will be added to the list
+of Sessions.
+
+You can also remove Sessions from the list by clicking the Remove checkbox.
+They will be removed when you click "Save".
+
+==== Editing an Existing Profile ====
+
+You can edit an existing Profile by selecting its name from the drop-down
+selector in the "Edit an existing profile" section.  Click "Edit" to make it
+appear in the main section of the screen.
+
+==== Deleting an Existing Profile ====
+
+To delete an existing Profile, select its name from the drop-down selector in
+the "Edit an existing profile" section.  Click "Delete".  You will be asked to
+confirm.  Note that you are deleting the profile whose name is in the
+drop-down selector, which may or may not be the same profile that is in the
+main section of the screen.
+
+=== The Run screen ===
+
+To run a profile, choose its name from the drop-down selector, and click "Run
+Selected Profile".  It should tell you that Tsung is running.  If you look at
+the logs on the target computer, you should see the traffic that is being
+generated.
+
+Eventually, this should finish.  You can stop it prematurely by clicking "Stop
+all Profiles".
+
+Once it's done, you should be able to see statistics about the profile you
+just ran by clicking "Generate Stats Report".
+
+== References == 
+# Official Tsung Documentation
+# [http://http://tsung.erlang-projects.org/user_manual.html Tsung
+# Documentation]
+
